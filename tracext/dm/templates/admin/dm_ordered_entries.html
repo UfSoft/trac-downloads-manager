@@ -1,0 +1,103 @@
+<!--!
+  Created by Pedro Algarvio on Jan 5, 2009
+  Copyright © 2009 Pedro Algarvio. All rights reserved.
+-->
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:i18n="http://genshi.edgewall.org/i18n">
+  <xi:include href="../admin.html" />
+  <head>
+    <title>Downloads Manager &mdash; $dm_title</title>
+  </head>
+  <body py:choose="">
+    <h2>$dm_title</h2>
+
+    <py:when test="item">
+    <form method="post" action="" py:if="item">
+      <fieldset>
+        <legend>Edit &mdash; $item.id </legend>
+        <table class="edit">
+          <tr>
+            <th><label for="name">ID:</label></th>
+            <td><input type="text" name="id" size="20" value="$item.id"/></td>
+          </tr>
+          <tr>
+            <th><label for="name">Name:</label></th>
+            <td><input type="text" name="name" size="20" value="$item.name"/></td>
+          </tr>
+          <tr>
+            <th><label for="description">Description:</label></th>
+            <td><input type="text" name="description" size="20"
+                       value="$item.description"/></td>
+          </tr>
+        </table>
+        <div class="buttons">
+          <input type="submit" name="update" value="${_('Update')}"/>
+        </div>
+      </fieldset>
+    </form>
+    </py:when>
+
+    <form method="post" action="" class="addnew" py:if="not item">
+      <fieldset>
+        <legend>Add New</legend>
+        <table class="side_heads">
+          <tr>
+            <th><label for="name">ID:</label></th>
+            <td><input type="text" name="id" size="20"/></td>
+          </tr>
+          <tr>
+            <th><label for="name">Name:</label></th>
+            <td><input type="text" name="name" size="20"/></td>
+          </tr>
+          <tr>
+            <th><label for="description">Description:</label></th>
+            <td><input type="text" name="description" size="20"/></td>
+          </tr>
+        </table>
+        <div class="buttons">
+          <input type="submit" name="create" value="${_('Create')}"/>
+        </div>
+      </fieldset>
+    </form>
+
+    <form method="post" action="" py:when="query">
+      <table class="listing">
+        <thead>
+          <tr>
+            <th class="sel">&nbsp;</th>
+            <th>ID</th><th>Name</th><th>Description</th><th>Order</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr py:for="item in query">
+            <td class="sel">
+              <input type="checkbox" name="selected" value="$item.id"/>
+            </td>
+            <td><a href="${'%s/%s' % (req.path_info, item.id) }">$item.id</a></td>
+            <td>$item.name</td>
+            <td>$item.description</td>
+            <td class="sel">
+              <select name="order_$item.id">
+                <option py:for="order in range(1, len(query)+1)" value="$order"
+                  selected="${order==item.order and 'selected' or None}">$order</option>
+              </select>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="help">Items with the same order will be ordered alphabetically.</p>
+      <div class="buttons">
+        <input type="submit" name="update" value="${_('Update')}"/>
+        <input type="submit" name="delete" value="${_('Delete Selected')}"/>
+      </div>
+    </form>
+    <py:otherwise>
+    <p>No $dm_title Available</p>
+    </py:otherwise>
+  </body>
+</html>

@@ -1,0 +1,163 @@
+<!--!
+  Created by Pedro Algarvio on Jan 5, 2009
+  Copyright © 2009 Pedro Algarvio. All rights reserved.
+-->
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:i18n="http://genshi.edgewall.org/i18n">
+  <xi:include href="../admin.html" />
+  <head>
+    <title>Downloads Manager &mdash; $dm_title</title>
+  </head>
+  <body py:choose="">
+    <form method="post" action="" py:when="item" py:if="item">
+      <fieldset>
+        <legend>Edit &mdash; $item.id </legend>
+      </fieldset>
+    </form>
+
+    <form method="post" action="" py:if="not item"
+          enctype="multipart/form-data" >
+      <fieldset>
+        <legend>Add New</legend>
+        <div id="addnew">
+        <table>
+          <tr>
+            <th><label for="category">Category:</label></th>
+            <td>
+              <select name="category">
+                <option value="$item.id"
+                        py:for="item in categories">$item.name</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <th><label for="file">Filename:</label></th>
+            <td><input type="file" name="file" /></td>
+          </tr>
+          <tr>
+            <th><label for="description">Description:</label></th>
+            <td><input type="text" name="description"/></td>
+          </tr>
+          <tr py:if="components">
+            <th><label for="component">Component:</label></th>
+            <td>
+              <select name="component">
+                <option value="$item"
+                        py:for="item in components">$item</option>
+              </select>
+            </td>
+          </tr>
+          <tr py:if="versions">
+            <th><label for="version">Version:</label></th>
+            <td>
+              <select name="version">
+                <option value="$item"
+                        py:for="item in versions">$item</option>
+              </select>
+            </td>
+          </tr>
+          <tr py:if="architectures">
+            <th><label for="arch">Architecture:</label></th>
+            <td>
+              <select name="architecture">
+                <option value="$item.id"
+                        py:for="item in architectures">$item.name</option>
+              </select>
+            </td>
+          </tr>
+          <tr py:if="platforms">
+            <th><label for="platform">Platform</label></th>
+            <td>
+              <select name="platform">
+                <option value="$item.id"
+                        py:for="item in platforms">$item.name</option>
+              </select>
+            </td>
+          </tr>
+          <tr py:if="types">
+            <th><label for="type">Type:</label></th>
+            <td>
+              <select name="type">
+                <option value="$item.id"
+                        py:for="item in types">$item.name</option>
+              </select>
+            </td>
+          </tr>
+        </table>
+        <div class="buttons">
+          <input type="submit" name="add" value="Add Download"/>
+        </div>
+        </div>
+      </fieldset>
+    </form>
+
+    <form method="post" action="" py:when="categories">
+      <table class="listing" id="downloads">
+        <py:for each="category in categories">
+        <thead>
+          <tr><th colspan="13">$category.name</th></tr>
+        </thead>
+        <thead>
+          <tr>
+            <th colspan="13" class="description">
+              $category.description
+            </th>
+          </tr>
+        </thead>
+        <thead>
+          <tr>
+            <th class="sel">&nbsp;</th>
+            <th>Filename</th>
+            <th>Description</th>
+            <th>Date</th>
+            <th>Uploader</th>
+            <th py:if="components">Component</th>
+            <th py:if="versions">Version</th>
+            <th>MD5</th>
+            <th py:if="architectures">Architecture</th>
+            <th py:if="platforms">Platform</th>
+            <th py:if="types">Type</th>
+            <th>Downloads</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr py:if="category.downloads">
+            <py:for each="download in category.downloads">
+            <th class="sel">
+              <input name="selected" type="checkbox" value="$download.id"/>
+            </th>
+            <th><a href="$download.id">$download.filename</a></th>
+            <th>$download.description</th>
+            <th>${pretty_timedelta(download.timestamp)}</th>
+            <th>$download.uploader</th>
+            <th py:if="components">$download.component</th>
+            <th py:if="versions">$download.version</th>
+            <th>$download.md5</th>
+            <th py:if="architectures">$download.architecture.name</th>
+            <th py:if="platforms">$download.platform.name</th>
+            <th py:if="types">$download.type.name</th>
+            <th>${download.count()}</th>
+            </py:for>
+          </tr>
+          <tr py:if="not category.downloads">
+            <td colspan="13"><center>No dowloads available</center></td>
+          </tr>
+        </tbody>
+        </py:for>
+      </table>
+      <script type="text/javascript">
+        jQuery(document).ready( function($) {
+          $("#downloads").width($("#addnew").width());
+          <py:if test="filter(None, [c.downloads for c in categories])">
+          $('fieldset').HideShow();
+          </py:if>
+        });
+      </script>
+    </form>
+  </body>
+</html>
