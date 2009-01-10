@@ -19,7 +19,7 @@ __summary__     = 'Trac downloads manager plugin'
 __description__ = __doc__
 
 # ------------------------- import package modules -----------------------------
-import admin, database, forms
+import admin, database, forms, perms, web_ui
 # ----------------------- Import non-package modules ---------------------------
 import pkg_resources
 from trac.core import Component, implements

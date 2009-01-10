@@ -56,3 +56,13 @@ def md5sum(filepath):
 
 def build_path(basepath, category, architecture, version, filename):
     return os.path.join(basepath, category, architecture, version, filename)
+
+def remove_path(path):
+    """Remove a path. If it's a file path, first remove the file, then all
+    parent empty directory(ies)
+    """
+    if os.path.isfile(path):
+        os.remove(path)
+        path = os.path.dirname(path)
+    os.removedirs(path)
+

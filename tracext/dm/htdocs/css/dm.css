@@ -9,3 +9,5 @@ table.dm thead th.category,  table.dm th.category_description { text-align: left
 table.listing th.category_description { font-style: italic; font-size: 80%; }
 table.listing th.description { width: 50%; }
 table.listing tbody td { vertical-align: middle; white-space: nowrap; }
+
+#downloads-table { margin: 2px, 2px; overflow-x: scroll; }

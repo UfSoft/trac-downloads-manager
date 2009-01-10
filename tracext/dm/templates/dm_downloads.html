@@ -1,0 +1,89 @@
+<!--!
+  Created by Pedro Algarvio on Jan 10, 2009
+  Copyright © 2009 Pedro Algarvio. All rights reserved.
+-->
+<!--!
+  Created by Pedro Algarvio on Jan 5, 2009
+  Copyright © 2009 Pedro Algarvio. All rights reserved.
+-->
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:i18n="http://genshi.edgewall.org/i18n">
+  <xi:include href="layout.html" />
+  <head>
+    <title>Downloads</title>
+  </head>
+  <body>
+    <div id="downloads-table">
+      <table class="listing dm" id="downloads">
+        <py:for each="category in categories">
+        <thead>
+          <tr><th colspan="13" class="category">$category.name</th></tr>
+        </thead>
+        <thead>
+          <tr>
+            <th colspan="13" class="category_description" py:if="category.description">
+              $category.description
+            </th>
+          </tr>
+        </thead>
+        <thead>
+          <tr>
+            <th class="sel">&nbsp;</th>
+            <th>Filename</th>
+            <th>Size</th>
+            <th class="description">Description</th>
+            <th>Date</th>
+            <th>Uploader</th>
+            <th py:if="components">Component</th>
+            <th py:if="versions">Version</th>
+            <th class="md5">MD5</th>
+            <th py:if="architectures">Architecture</th>
+            <th py:if="platforms">Platform</th>
+            <th py:if="types">Type</th>
+            <th>Downloads</th>
+            <th class="self">Hidden</th>
+          </tr>
+        </thead>
+        <tbody>
+          <py:for each="download in category.downloads">
+          <tr py:if="not download.hidden">
+            <td class="sel">
+              <input name="selected" type="checkbox" value="$download.id"/>
+            </td>
+            <td>
+              <a href="${req.href.downloads(download.id, download.filename)}"
+                 py:strip="'DM_DOWNLOAD' not in req.perm">
+                $download.filename
+              </a>
+            </td>
+            <td>${ pretty_size(download.size) }</td>
+            <td>$download.description</td>
+            <td>${pretty_timedelta(download.timestamp)}</td>
+            <td>$download.uploader</td>
+            <td py:if="components">$download.component</td>
+            <td py:if="versions">$download.version</td>
+            <td>$download.md5</td>
+            <td py:if="architectures">$download.architecture.name</td>
+            <td py:if="platforms">$download.platform.name</td>
+            <td py:if="types">$download.type.name</td>
+            <td>${download.count()}</td>
+            <td>
+              <input type="checkbox" name="hidden" value="yes" disabled="disabled"
+                     checked="${ download.hidden and 'checked' or None }"/>
+            </td>
+          </tr>
+          </py:for>
+          <tr py:if="not category.downloads">
+            <td colspan="13"><center><em>No dowloads available</em></center></td>
+          </tr>
+        </tbody>
+        </py:for>
+      </table>
+    </div>
+  </body>
+</html>

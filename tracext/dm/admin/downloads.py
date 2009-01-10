@@ -26,11 +26,11 @@ class DownloadsAdmin(Component):
 
     # IAdminPanelProvider methods
     def get_admin_panels(self, req):
-        if 'TRAC_ADMIN' in req.perm:
+        if 'DM_MANAGE' in req.perm:
             yield 'dm', 'Downloads Manager', 'downloads', 'Downloads'
 
     def render_admin_panel(self, req, category, page, path_info):
-        req.perm.require('TRAC_ADMIN')
+        req.perm.require('DM_MANAGE')
 
         # Keep the session opened until page renders
         #req.args['Session'] =
@@ -74,6 +74,7 @@ class DownloadsAdmin(Component):
                 download.uploader = req.authname
                 download.component = req.args.get('component', u'')
                 download.version = req.args.get('version', u'')
+                download.hidden = req.args.get('hidden', 'no') == 'yes'
 
                 file = req.args.get('file')
                 if hasattr(file, 'filename') and file.filename:
@@ -154,6 +155,7 @@ class DownloadsAdmin(Component):
                         component=req.args.get('component', ''),
                         version=req.args.get('version', '0')
                     )
+                    download.hidden = req.args.get('hidden', 'no') == 'yes'
                     platform = req.args.get('platform')
                     download.category = Session.query(Category) \
                                                 .get(req.args.get('category'))

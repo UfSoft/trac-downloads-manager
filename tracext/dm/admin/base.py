@@ -16,12 +16,12 @@ class BaseOrderedItems(object):
 
     # IAdminPanelProvider methods
     def get_admin_panels(self, req):
-        if 'TRAC_ADMIN' in req.perm:
+        if 'DM_MANAGE' in req.perm:
             yield ('dm', 'Downloads Manager', self.category_title.lower(),
                    self.category_title)
 
     def render_admin_panel(self, req, category, page, path_info):
-        req.perm.require('TRAC_ADMIN')
+        req.perm.require('DM_MANAGE')
 
         Session = session(self.env)
         data = {'dm_title': self.category_title}

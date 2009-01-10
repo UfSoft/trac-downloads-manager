@@ -15,7 +15,7 @@ from sqlalchemy.orm import (mapper, relation, dynamic_loader, MapperExtension,
                             EXT_CONTINUE, EXT_STOP)
 from sqlalchemy.orm.session import object_session
 from tracext.sa import session
-from tracext.dm.utils import gen_slug, md5sum, build_path
+from tracext.dm.utils import gen_slug, md5sum, build_path, remove_path
 
 name = 'trac-downloads-manager'
 version = 1
@@ -56,8 +56,7 @@ class CustomMapper(MapperExtension):
 
     def after_delete(self, mapper, connection, instance):
         try:
-            os.remove(instance.path)
-            os.removedirs(os.path.dirname(instance.path))
+            remove_path(instance.path)
         except OSError, err:
             print err
         return EXT_CONTINUE
@@ -95,8 +94,8 @@ download_table = sqla.Table('dm_download', metadata,
     sqla.Column('filename', sqla.Text, nullable=False),
     sqla.Column('path', sqla.Text, nullable=False),
     sqla.Column('size', sqla.Integer, nullable=False),
-    sqla.Column('timestamp', sqla.Integer, default=time.time),
-    sqla.Column('description', sqla.Text),
+    sqla.Column('timestamp', sqla.Float, default=time.time),
+    sqla.Column('notes', sqla.Text),
     sqla.Column('uploader', sqla.Text, nullable=False),
     sqla.Column('component', sqla.Text, nullable=False),
     sqla.Column('version', sqla.Text, nullable=False),
@@ -115,7 +114,7 @@ download_table = sqla.Table('dm_download', metadata,
 )
 
 stats_table = sqla.Table('dm_stats', metadata,
-    sqla.Column('timestamp', sqla.Integer, default=time.time, primary_key=True),
+    sqla.Column('timestamp', sqla.Float, default=time.time, primary_key=True),
     sqla.Column('user', sqla.Text, nullable=False),
     sqla.Column('download_id', None, sqla.ForeignKey('dm_download.id')),
 )
@@ -165,6 +164,7 @@ class DownloadType(object):
         return 1
 
 class Stat(object):
+    download = timestamp = None
     def __init__(self, username):
         self.user = username
 
