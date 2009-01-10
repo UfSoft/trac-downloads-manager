@@ -8,7 +8,7 @@
 
 import os.path
 import time
-#from datetime import datetime
+from stat import ST_SIZE
 
 import sqlalchemy as sqla
 from sqlalchemy.orm import (mapper, relation, dynamic_loader, MapperExtension,
@@ -23,26 +23,44 @@ version = 1
 metadata = sqla.MetaData()
 
 class CustomMapper(MapperExtension):
+
     def before_insert(self, mapper, connection, instance):
         env = object_session(instance).trac_env
-        filepath = os.path.join(env.config.get('downloads', 'path', ''),
-                            instance.category.id, instance.architecture.id,
-                            instance.version, instance.filename)
-        instance.md5 = md5sum(filepath)
-#        print '\n\n\n', instance
-#        print instance.__dict__
-#        print object_session(instance).trac_env
+        instance.path = build_path(env.config.get('downloads', 'path'),
+                                   instance.category.id,
+                                   instance.architecture.id,
+                                   instance.version, instance.filename)
+        instance.md5 = md5sum(instance.path)
+        instance.size = os.stat(instance.path)[ST_SIZE]
         return EXT_CONTINUE
-#        return MapperExtension.before_insert(self, mapper, connection, instance)
 
     def before_update(self, mapper, connection, instance):
-#        print '\n\n\n', instance
-#        print instance.__dict__
-#        if object_session(instance).is_modified(instance,
-#                                                include_collections=False):
-#            print 'foo'
+        path_changed = [key for key in ('category_id', 'platform_id',
+                                        'architecture_id', 'type_id',
+                                        'version', 'filename')
+                        if key in instance._sa_instance_state.committed_state]
+        if path_changed:
+            env = object_session(instance).trac_env
+            new_path = build_path(env.config.get('downloads', 'path'),
+                                  instance.category.id,
+                                  instance.architecture.id,
+                                  instance.version, instance.filename)
+            if new_path != instance.path:
+                os.renames(instance.path, new_path)
+                instance.path = new_path
+            if 'filename' in path_changed:
+                instance.md5 = md5sum(instance.path)
+                instance.size = os.stat(instance.path)[ST_SIZE]
+                instance.timestamp = time.time()
         return EXT_CONTINUE
-#        return MapperExtension.before_update(self, mapper, connection, instance)
+
+    def after_delete(self, mapper, connection, instance):
+        try:
+            os.remove(instance.path)
+            os.removedirs(os.path.dirname(instance.path))
+        except OSError, err:
+            print err
+        return EXT_CONTINUE
 
 category_table = sqla.Table('dm_category', metadata,
     sqla.Column('id', sqla.Text, primary_key=True),
@@ -75,9 +93,10 @@ download_type_table = sqla.Table('dm_download_type', metadata,
 download_table = sqla.Table('dm_download', metadata,
     sqla.Column('id', sqla.Integer, primary_key=True, autoincrement=True),
     sqla.Column('filename', sqla.Text, nullable=False),
-    sqla.Column('description', sqla.Text),
+    sqla.Column('path', sqla.Text, nullable=False),
     sqla.Column('size', sqla.Integer, nullable=False),
     sqla.Column('timestamp', sqla.Integer, default=time.time),
+    sqla.Column('description', sqla.Text),
     sqla.Column('uploader', sqla.Text, nullable=False),
     sqla.Column('component', sqla.Text, nullable=False),
     sqla.Column('version', sqla.Text, nullable=False),
@@ -151,27 +170,18 @@ class Stat(object):
 
 class Download(object):
     filename = description = size = uploader = component = version = md5 = None
-    stats = category = architecture = hidden = None
-    def __init__(self, filename, description=u'', size=None, uploader=None,
-                 component=None, version=None):
+    timestamp = stats = category = architecture = hidden = None
+    def __init__(self, filename, description=u'', uploader=None, component=None,
+                 version=None):
         self.filename = filename
         self.description = description
-        self.size = size
         self.uploader = uploader
         self.component = component
         self.version = version
         self.hidden = False
-#        self.md5 = md5sum(self.path)
 
     def count(self):
         return self.stats.count()
-
-    @property
-    def path(self):
-        env = object_session(self).trac_env
-        return os.path.join(env.config.get('downloads', 'path', ''),
-                            self.category.id, self.architecture.id,
-                            self.version, self.filename)
 
 mapper(Category, category_table,
        order_by=[category_table.c.order, category_table.c.name],

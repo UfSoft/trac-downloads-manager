@@ -13,19 +13,97 @@
   <head>
     <title>Downloads Manager &mdash; $dm_title</title>
   </head>
-  <body py:choose="">
-    <form method="post" action="" py:when="item" py:if="item">
+  <body py:choose="" py:with="architectures=architectures.all();
+                              platforms=platforms.all();
+                              types=types.all()">
+    <form method="post" action="" enctype="multipart/form-data"
+          py:when="download" py:if="download">
       <fieldset>
-        <legend>Edit &mdash; $item.id </legend>
+        <legend>Edit &mdash; $download.filename </legend>
+        <div id="addnew">
+        <table class="side-heads">
+          <tr>
+            <th><label for="category">Category:</label></th>
+            <td>
+              <select name="category">
+                <option value="$item.id"
+                        selected="${item.id==download.category_id and 'selected' or None}"
+                        py:for="item in categories">$item.name</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <th><label for="file">New Filename:</label></th>
+            <td><input type="file" name="file" /></td>
+          </tr>
+          <tr>
+            <th><label for="description">Description:</label></th>
+            <td><input type="text" name="description" value="$download.description"/></td>
+          </tr>
+          <tr py:if="components">
+            <th><label for="component">Component:</label></th>
+            <td>
+              <select name="component">
+                <option value="$item"
+                        selected="${item==download.component and 'selected' or None}"
+                        py:for="item in components">$item</option>
+              </select>
+            </td>
+          </tr>
+          <tr py:if="versions">
+            <th><label for="version">Version:</label></th>
+            <td>
+              <select name="version">
+                <option value="$item"
+                        selected="${item==download.version and 'selected' or None}"
+                        py:for="item in versions">$item</option>
+              </select>
+            </td>
+          </tr>
+          <tr py:if="architectures">
+            <th><label for="arch">Architecture:</label></th>
+            <td>
+              <select name="architecture">
+                <option value="$item.id"
+                        selected="${item.id==download.architecture_id and 'selected' or None}"
+                        py:for="item in architectures">$item.name</option>
+              </select>
+            </td>
+          </tr>
+          <tr py:if="platforms">
+            <th><label for="platform">Platform</label></th>
+            <td>
+              <select name="platform">
+                <option value="$item.id"
+                        selected="${item.id==download.platform_id and 'selected' or None}"
+                        py:for="item in platforms">$item.name</option>
+              </select>
+            </td>
+          </tr>
+          <tr py:if="types">
+            <th><label for="type">Type:</label></th>
+            <td>
+              <select name="type">
+                <option value="$item.id"
+                        selected="${item.id==download.type_id and 'selected' or None}"
+                        py:for="item in types">$item.name</option>
+              </select>
+            </td>
+          </tr>
+        </table>
+        <div class="buttons">
+          <input type="submit" name="edit" value="Update Download"/>
+        </div>
+        </div>
       </fieldset>
     </form>
 
-    <form method="post" action="" py:if="not item"
+    <form method="post" action="" py:if="not download"
           enctype="multipart/form-data" >
       <fieldset>
         <legend>Add New</legend>
         <div id="addnew">
-        <table>
+        <table class="side-heads">
           <tr>
             <th><label for="category">Category:</label></th>
             <td>
@@ -96,15 +174,15 @@
       </fieldset>
     </form>
 
-    <form method="post" action="" py:when="categories">
-      <table class="listing" id="downloads">
+    <form method="post" action="" py:when="not download">
+      <table class="listing dm" id="downloads">
         <py:for each="category in categories">
         <thead>
-          <tr><th colspan="13">$category.name</th></tr>
+          <tr><th colspan="13" class="category">$category.name</th></tr>
         </thead>
         <thead>
           <tr>
-            <th colspan="13" class="description">
+            <th colspan="13" class="category_description" py:if="category.description">
               $category.description
             </th>
           </tr>
@@ -113,12 +191,12 @@
           <tr>
             <th class="sel">&nbsp;</th>
             <th>Filename</th>
-            <th>Description</th>
+            <th class="description">Description</th>
             <th>Date</th>
             <th>Uploader</th>
             <th py:if="components">Component</th>
             <th py:if="versions">Version</th>
-            <th>MD5</th>
+            <th class="md5">MD5</th>
             <th py:if="architectures">Architecture</th>
             <th py:if="platforms">Platform</th>
             <th py:if="types">Type</th>
@@ -126,26 +204,27 @@
           </tr>
         </thead>
         <tbody>
+          <py:for each="download in category.downloads">
           <tr py:if="category.downloads">
-            <py:for each="download in category.downloads">
-            <th class="sel">
+            <td class="sel">
               <input name="selected" type="checkbox" value="$download.id"/>
-            </th>
-            <th><a href="$download.id">$download.filename</a></th>
-            <th>$download.description</th>
-            <th>${pretty_timedelta(download.timestamp)}</th>
-            <th>$download.uploader</th>
-            <th py:if="components">$download.component</th>
-            <th py:if="versions">$download.version</th>
-            <th>$download.md5</th>
-            <th py:if="architectures">$download.architecture.name</th>
-            <th py:if="platforms">$download.platform.name</th>
-            <th py:if="types">$download.type.name</th>
-            <th>${download.count()}</th>
-            </py:for>
+            </td>
+            <td><a href="${req.href.admin(admin.category, admin.page,
+                                          download.id)}">$download.filename</a></td>
+            <td>$download.description</td>
+            <td>${pretty_timedelta(download.timestamp)}</td>
+            <td>$download.uploader</td>
+            <td py:if="components">$download.component</td>
+            <td py:if="versions">$download.version</td>
+            <td>$download.md5</td>
+            <td py:if="architectures">$download.architecture.name</td>
+            <td py:if="platforms">$download.platform.name</td>
+            <td py:if="types">$download.type.name</td>
+            <td>${download.count()}</td>
           </tr>
+          </py:for>
           <tr py:if="not category.downloads">
-            <td colspan="13"><center>No dowloads available</center></td>
+            <td colspan="13"><center><em>No dowloads available</em></center></td>
           </tr>
         </tbody>
         </py:for>
@@ -158,6 +237,9 @@
           </py:if>
         });
       </script>
+      <div class="buttons">
+        <input type="submit" name="delete" value="${_('Delete Selected')}"/>
+      </div>
     </form>
   </body>
 </html>

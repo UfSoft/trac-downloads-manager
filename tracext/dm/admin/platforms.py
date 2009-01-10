@@ -18,8 +18,3 @@ class PlatformsAdmin(BaseOrderedItems, Component):
     category_title = 'Platforms'
     category_class = Platform
     category_table = platform_table
-
-    # IAdminPanelProvider methods
-    def get_admin_panels(self, req):
-        if 'TRAC_ADMIN' in req.perm:
-            yield 'downloads', 'Downloads Manager', 'platforms', 'Platforms'

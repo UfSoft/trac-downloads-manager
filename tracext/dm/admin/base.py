@@ -6,13 +6,19 @@
 # License: BSD - Please view the LICENSE file for additional information.
 # ==============================================================================
 
-
+from trac.web.chrome import add_stylesheet
 from tracext.dm.database import session
 from tracext.dm.utils import flash
 
 
 class BaseOrderedItems(object):
     env = log = config = category_title = category_class = category_table = None
+
+    # IAdminPanelProvider methods
+    def get_admin_panels(self, req):
+        if 'TRAC_ADMIN' in req.perm:
+            yield ('dm', 'Downloads Manager', self.category_title.lower(),
+                   self.category_title)
 
     def render_admin_panel(self, req, category, page, path_info):
         req.perm.require('TRAC_ADMIN')
@@ -76,4 +82,5 @@ class BaseOrderedItems(object):
             )
         else:
             data.update({'query': Session.query(self.category_class).all()})
+        add_stylesheet(req, 'dm/css/dm.css')
         return 'admin/dm_ordered_entries.html', data

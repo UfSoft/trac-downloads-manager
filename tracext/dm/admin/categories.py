@@ -20,8 +20,3 @@ class CategoriesAdmin(BaseOrderedItems, Component):
     category_class = Category
     category_table = category_table
 
-    # IAdminPanelProvider methods
-    def get_admin_panels(self, req):
-        if 'TRAC_ADMIN' in req.perm:
-            yield 'downloads', 'Downloads Manager', 'categories', 'Categories'
-

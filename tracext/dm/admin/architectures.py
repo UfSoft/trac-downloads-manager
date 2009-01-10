@@ -18,9 +18,3 @@ class ArchitecturesAdmin(BaseOrderedItems, Component):
     category_title = 'Architectures'
     category_class = Architecture
     category_table = architecture_table
-
-    # IAdminPanelProvider methods
-    def get_admin_panels(self, req):
-        if 'TRAC_ADMIN' in req.perm:
-            yield ('downloads', 'Downloads Manager', 'architectures',
-                   'Architectures')

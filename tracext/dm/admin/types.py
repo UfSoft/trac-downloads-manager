@@ -18,8 +18,3 @@ class TypesAdmin(BaseOrderedItems, Component):
     category_title = 'Types'
     category_class = DownloadType
     category_table = download_type_table
-
-    # IAdminPanelProvider methods
-    def get_admin_panels(self, req):
-        if 'TRAC_ADMIN' in req.perm:
-            yield 'downloads', 'Downloads Manager', 'types', 'Types'

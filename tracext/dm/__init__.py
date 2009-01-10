@@ -93,3 +93,5 @@ class DownloadsConfiguration(Component):
                                doc="Link versions from ticket system")
     link_components = BoolOption('downloads', 'link_components', default=True,
                                  doc="Link components from ticket system")
+    path = Option('downloads', 'path', 'downloads',
+                  doc="Path to the downloads base directory.")

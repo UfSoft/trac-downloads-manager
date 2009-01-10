@@ -8,6 +8,7 @@
 
 from trac.core import Component, implements
 from trac.admin.api import IAdminPanelProvider
+from tracext.dm.database import Stat, stats_table
 
 class StatsAdmin(Component):
     implements(IAdminPanelProvider)
@@ -15,7 +16,7 @@ class StatsAdmin(Component):
     # IAdminPanelProvider methods
     def get_admin_panels(self, req):
         if 'TRAC_ADMIN' in req.perm:
-            yield 'downloads', 'Downloads Manager', 'stats', 'Statistics'
+            yield 'dm', 'Downloads Manager', 'stats', 'Statistics'
 
     def render_admin_panel(self, req, category, page, path_info):
         req.perm.require('TRAC_ADMIN')

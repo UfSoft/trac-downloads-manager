@@ -1,0 +1,11 @@
+table.side-heads th {
+  text-align: right;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+table.dm thead th, table.dm tbody td { white-space: nowrap; text-align: center; }
+table.dm thead th.category,  table.dm th.category_description { text-align: left; }
+table.listing th.category_description { font-style: italic; font-size: 80%; }
+table.listing th.description { width: 50%; }
+table.listing tbody td { vertical-align: middle; white-space: nowrap; }

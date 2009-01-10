@@ -45,7 +45,7 @@
     <form method="post" action="" class="addnew" py:if="not item">
       <fieldset>
         <legend>Add New</legend>
-        <table class="side_heads">
+        <table class="side-heads">
           <tr>
             <th><label for="name">ID:</label></th>
             <td><input type="text" name="id" size="20"/></td>
@@ -97,7 +97,8 @@
       </div>
     </form>
     <py:otherwise>
-    <p>No $dm_title Available</p>
+    <p>No $dm_title Available.</p>
+    <p>As long as you don't add them, they won't show up anywhere.</p>
     </py:otherwise>
   </body>
 </html>
